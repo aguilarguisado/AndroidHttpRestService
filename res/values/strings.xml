@@ -1,0 +1,10 @@
+<resources>
+
+    <string name="app_name">Android HttpRestService</string>
+    <string name="trySearching">Try asking something!</string>
+    <string name="errorMakingRequest">There was an error making the request</string>
+    <string name="noInternet">There is not connection to network</string>
+    <string name="navigationForbidden">This is only a sample about how to implement HttpService, not a browser. Search with the top bar if you want to play with it.</string>
+    <string name="search">Search</string>
+
+</resources>
