@@ -14,6 +14,11 @@ For this first version you can:
 
 
 ##Screenshots
+![Screenshot Android](https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot1.png = 300x512 "screenshot1")
+
+![Screenshot Android](https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot2.png = 300x512 "screenshot1")
+
+![Screenshot Android](https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot3.png = 300x512 "screenshot1")
 
 ## Version 
 * Version 1.0
@@ -74,6 +79,9 @@ For this first version you can:
 			} catch (NoInternetConnectionException expected) {
 				setCustomCSSHtmlToWebView(R.string.noInternet, "no_internet.png");
 			}
+
+## License 
+* see [LICENSE](https://github.com/juaagugui/AndroidHttpRestService/blob/master/LICENSE) file
 
 ## Contact
 #### Developer/Company
