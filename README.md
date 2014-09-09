@@ -14,11 +14,11 @@ For this first version you can:
 
 
 ##Screenshots
-<img src="https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot1.png" alt="screenshot1" style="width:300;height:512">
+<img src="https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot1.png" alt="screenshot1" style="width:150;height:256">
 
-<img src="https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot2.png" alt="screenshot2" style="width:300;height:512">
+<img src="https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot2.png" alt="screenshot2" style="width:150;height:256">
 
-<img src="https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot3.png" alt="screenshot3" style="width:300;height:512">
+<img src="https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot3.png" alt="screenshot3" style="width:150;height:256">
 
 ## Version 
 * Version 1.0
