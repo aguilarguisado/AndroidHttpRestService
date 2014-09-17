@@ -30,6 +30,18 @@ public interface IHttpManagerService {
 	public void sendRequest(IHttpConnection connection) throws NoInternetConnectionException;
 
 	/**
+	 * Make an HttpRequest with a return code
+	 * 
+	 * @param returnCode 
+	 * 			Code to be returned with the callback
+	 * @param connection
+	 *            Wrapper with request settings
+	 * @throws NoInternetConnectionException
+	 *             Exception thrown in case network is not available
+	 */
+	public void sendRequestWithReturn(int returnCode, IHttpConnection connection) throws NoInternetConnectionException;
+	
+	/**
 	 * 
 	 * @return if the user is currently logged in server side
 	 */

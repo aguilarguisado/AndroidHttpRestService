@@ -13,7 +13,8 @@ public interface OnRESTResultCallback {
 	 * the HttpRequest
 	 * 
 	 * @param code
+	 * @param returnCode
 	 * @param result
 	 */
-	public void onRESTResult(int code, String result);
+	public void onRESTResult(int returnCode, int code, String result);
 }

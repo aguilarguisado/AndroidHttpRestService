@@ -54,9 +54,7 @@ public class HttpServiceFragment extends Fragment implements OnRESTResultCallbac
 			public boolean isLogged() {
 				// Not necessary
 				return false;
-			}
-
-			
+			}		
 		};
 	}
 
@@ -101,7 +99,7 @@ public class HttpServiceFragment extends Fragment implements OnRESTResultCallbac
 	}
 
 	@Override
-	public void onRESTResult(int code, String result) {
+	public void onRESTResult(int returnCode,int code, String result) {
 		if (result == null) {
 			setCustomCSSHtmlToWebView(R.string.errorMakingRequest, "error.png");
 		} else {

@@ -41,20 +41,24 @@ public abstract class HttpManagerService implements IHttpManagerService {
 				@Override
 				protected void onReceiveResult(int resultCode, Bundle resultData) {
 					eventListener.onRequestFinish();
-					if (resultData != null && resultData.containsKey(RESTIntentService.REST_RESULT)) {
-						callback.onRESTResult(resultCode, resultData.getString(RESTIntentService.REST_RESULT));
-					} else {
-						callback.onRESTResult(resultCode, null);
+					int returnCode = resultData.getInt(RESTIntentService.RETURN_CODE);
+					String restResultData = null;
+					if (resultData.containsKey(RESTIntentService.REST_RESULT)) {
+						restResultData = resultData.getString(RESTIntentService.REST_RESULT);
 					}
+					callback.onRESTResult(returnCode, resultCode, restResultData);
 				}
-
 			};
 		}
 	}
 
 	@Override
 	public void sendRequest(IHttpConnection connection) throws NoInternetConnectionException {
+		sendRequestWithReturn(-1, connection);
+	}
 
+	@Override
+	public void sendRequestWithReturn(int returnCode, IHttpConnection connection) throws NoInternetConnectionException {
 		eventListener.onRequestInit();
 
 		if (connection == null) {
@@ -87,6 +91,7 @@ public abstract class HttpManagerService implements IHttpManagerService {
 
 		intent.putExtra(RESTIntentService.EXTRA_PARAMS, params);
 		intent.putExtra(RESTIntentService.EXTRA_RESULT_RECEIVER, getResultReceiver());
+		intent.putExtra(RESTIntentService.RETURN_CODE, returnCode);
 
 		if (connection.getLoginRequired()) {
 			if (!isLogged()) {
@@ -125,7 +130,6 @@ public abstract class HttpManagerService implements IHttpManagerService {
 
 	@Override
 	public abstract boolean logout();
-
 
 	private Intent setIntentBundle(Intent intent, List<Pair<String, String>> pairs, String keyForExtra) {
 		if (pairs != null) {

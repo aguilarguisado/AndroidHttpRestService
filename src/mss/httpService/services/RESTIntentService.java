@@ -50,6 +50,7 @@ public class RESTIntentService extends IntentService {
 	public static final String EXTRA_RESULT_RECEIVER = "EXTRA_RESULT_RECEIVER";
 	public static final String HEADERS = "HEADERS";
 	public static final String REST_RESULT = "REST_RESULT";
+	public static final String RETURN_CODE = "RETURN_CODE";
 
 	public RESTIntentService() {
 		super(TAG);
@@ -69,6 +70,7 @@ public class RESTIntentService extends IntentService {
 
 		// We default to GET if no verb was specified.
 		int verb = extras.getInt(EXTRA_HTTP_VERB, GET);
+		int returnCode = extras.getInt(RETURN_CODE);
 		Bundle params = extras.getParcelable(EXTRA_PARAMS);
 		Bundle defaultQueryFilters = extras.getParcelable(DEFAULT_QUERY_FILTERS);
 		Bundle headers = extras.getParcelable(HEADERS);
@@ -102,7 +104,7 @@ public class RESTIntentService extends IntentService {
 			request = setHeaders(request, headers);
 
 			if (params != null && defaultQueryFilters != null) {
-				request = attachUriWithQuery(request, intentUriAction, params, defaultQueryFilters);
+				request = attachUriWithQuery(request, intentUriAction, verb, params, defaultQueryFilters);
 			} else {
 				request.setURI(new URI(intentUriAction.toString()));
 			}
@@ -114,13 +116,14 @@ public class RESTIntentService extends IntentService {
 				HttpEntity responseEntity = response.getEntity();
 				StatusLine responseStatus = response.getStatusLine();
 				int statusCode = responseStatus != null ? responseStatus.getStatusCode() : 0;
-
+				Bundle resultData = new Bundle();
 				if (responseEntity != null) {
-					Bundle resultData = new Bundle();
+					resultData.putInt(RETURN_CODE, returnCode);
 					resultData.putString(REST_RESULT, EntityUtils.toString(responseEntity));
 					receiver.send(statusCode, resultData);
 				} else {
-					receiver.send(statusCode, null);
+					resultData.putInt(RETURN_CODE, returnCode);
+					receiver.send(statusCode, resultData);
 				}
 			}
 		} catch (URISyntaxException e) {
@@ -166,12 +169,14 @@ public class RESTIntentService extends IntentService {
 		return request;
 	}
 
-	private HttpRequestBase attachUriWithQuery(HttpRequestBase request, Uri uri, Bundle params, Bundle defaultQueryParams) throws URISyntaxException {
+	private HttpRequestBase attachUriWithQuery(HttpRequestBase request, Uri uri, int verb, Bundle params, Bundle defaultQueryParams) throws URISyntaxException {
 		if (params != null && defaultQueryParams != null) {
 			Uri.Builder uriBuilder = uri.buildUpon();
 
 			uriBuilder = attachQueryParams(uriBuilder, defaultQueryParams);
-			uriBuilder = attachQueryParams(uriBuilder, params);
+			if (verb == GET) {
+				uriBuilder = attachQueryParams(uriBuilder, params);
+			}
 
 			uri = uriBuilder.build();
 			request.setURI(new URI(uri.toString()));
