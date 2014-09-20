@@ -41,10 +41,13 @@ public abstract class HttpManagerService implements IHttpManagerService {
 				@Override
 				protected void onReceiveResult(int resultCode, Bundle resultData) {
 					eventListener.onRequestFinish();
-					int returnCode = resultData.getInt(RESTIntentService.RETURN_CODE);
+					int returnCode = -1;
 					String restResultData = null;
-					if (resultData.containsKey(RESTIntentService.REST_RESULT)) {
-						restResultData = resultData.getString(RESTIntentService.REST_RESULT);
+					if (resultData != null) {
+						returnCode = resultData.getInt(RESTIntentService.RETURN_CODE);
+						if (resultData.containsKey(RESTIntentService.REST_RESULT)) {
+							restResultData = resultData.getString(RESTIntentService.REST_RESULT);
+						}
 					}
 					callback.onRESTResult(returnCode, resultCode, restResultData);
 				}
