@@ -21,7 +21,7 @@ For this first version you can:
 <img src="https://github.com/juaagugui/AndroidHttpRestService/blob/master/art/screenshot3.png" alt="screenshot3" style="width:150;height:256">
 
 ## Version 
-* Version 1.0
+* Version 1.0.1
 
 ## How-to use this code
 
@@ -69,13 +69,22 @@ For this first version you can:
 * OnRESTResultCallback implements the method which will be called when the server side makes a response. We have to process the response with appropriates codes, Strings, JSONs or whatever we expect or can get.
 
 			@Override
-			public void onRESTResult(int code, String result) {
+			public void onRESTResult(int returnCode, int code, String result) {
 				//Custom behavior
 			}
 * At last, make the request (it could raise NoInternetConnectionException). The method declared above will handle the response:
 
 			try {
 				httpManagerService.sendRequest(connection);
+			} catch (NoInternetConnectionException expected) {
+				setCustomCSSHtmlToWebView(R.string.noInternet, "no_internet.png");
+			}
+* From version 1.0.1, you can set a return code for each request. "sendRequestWithReturn" allows sending different request from the same activity and react differently depending on the request source. Choose what to in each case in your onRESTResult method
+
+		try {
+				httpManagerService.sendRequestWithReturn(1,connection1);
+				httpManagerService.sendRequestWithReturn(2,connection2);
+				
 			} catch (NoInternetConnectionException expected) {
 				setCustomCSSHtmlToWebView(R.string.noInternet, "no_internet.png");
 			}

@@ -38,6 +38,7 @@ public interface IHttpManagerService {
 	 *            Wrapper with request settings
 	 * @throws NoInternetConnectionException
 	 *             Exception thrown in case network is not available
+	 * @since 1.0.1
 	 */
 	public void sendRequestWithReturn(int returnCode, IHttpConnection connection) throws NoInternetConnectionException;
 	

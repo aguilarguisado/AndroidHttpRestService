@@ -15,6 +15,8 @@ public interface OnRESTResultCallback {
 	 * @param code
 	 * @param returnCode
 	 * @param result
+	 * 
+	 * @since 1.0.1
 	 */
 	public void onRESTResult(int returnCode, int code, String result);
 }
