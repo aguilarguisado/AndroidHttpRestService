@@ -79,7 +79,7 @@ For this version you can:
 * At last, make the request (it could raise NoInternetConnectionException). The method declared above will handle the response:
 
 			try {
-				httpManagerService.sendRequest(connection);
+				restManager.sendRequest(connection);
 			} catch (NoInternetConnectionException expected) {
 				setCustomCSSHtmlToWebView(R.string.noInternet, "no_internet.png");
 			}
@@ -87,8 +87,8 @@ For this version you can:
 * From version 1.0.1, you can set a return code for each request. "sendRequestWithReturn" allows sending different request from the same activity and react differently depending on the source request. Choose what to in each case in your onRESTResult method
 
 		try {
-				httpManagerService.sendRequestWithReturn(1,connection1);
-				httpManagerService.sendRequestWithReturn(2,connection2);
+				restManager.sendRequestWithReturn(1,connection1);
+				restManager.sendRequestWithReturn(2,connection2);
 				
 			} catch (NoInternetConnectionException expected) {
 				setCustomCSSHtmlToWebView(R.string.noInternet, "no_internet.png");
