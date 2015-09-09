@@ -20,6 +20,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import android.app.IntentService;
@@ -119,7 +120,7 @@ public class RESTIntentService extends IntentService {
 				Bundle resultData = new Bundle();
 				if (responseEntity != null) {
 					resultData.putInt(RETURN_CODE, returnCode);
-					resultData.putString(REST_RESULT, EntityUtils.toString(responseEntity));
+					resultData.putString(REST_RESULT, EntityUtils.toString(responseEntity, HTTP.UTF_8));
 					receiver.send(statusCode, resultData);
 				} else {
 					resultData.putInt(RETURN_CODE, returnCode);
