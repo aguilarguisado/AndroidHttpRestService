@@ -22,6 +22,8 @@ public class HttpConnection implements IHttpConnection {
 	private Boolean loginRequired;
 	private List<Pair<String, String>> headers;
 	private List<Pair<String, String>> defaultUriQueryParams;
+	private List<Pair<String, String>> files;
+
 	private OnRESTResultCallback callback;
 
 	public HttpConnection(String url, int httpVerb, JSONObject bodyData, OnRESTResultCallback callback) {
@@ -120,4 +122,13 @@ public class HttpConnection implements IHttpConnection {
 		this.callback = callback;
 	}
 
+    @Override
+    public List<Pair<String, String>> getFiles() {
+        return files;
+    }
+
+    @Override
+    public void setFiles(List<Pair<String, String>> files) {
+        this.files = files;
+    }
 }

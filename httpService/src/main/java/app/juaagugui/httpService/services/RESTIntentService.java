@@ -48,6 +48,7 @@ public class RESTIntentService extends IntentService {
     public static final String DEFAULT_QUERY_FILTERS = "DEFAULT_QUERY_FILTERS";
     public static final String EXTRA_RESULT_RECEIVER = "EXTRA_RESULT_RECEIVER";
     public static final String HEADERS = "HEADERS";
+    public static final String FILES = "FILES";
     public static final String REST_RESULT = "REST_RESULT";
     public static final String RETURN_CODE = "RETURN_CODE";
 
@@ -73,6 +74,7 @@ public class RESTIntentService extends IntentService {
         Bundle params = extras.getParcelable(EXTRA_PARAMS);
         Bundle defaultQueryFilters = extras.getParcelable(DEFAULT_QUERY_FILTERS);
         Bundle headers = extras.getParcelable(HEADERS);
+        Bundle files = extras.getParcelable(FILES);
 
         ResultReceiver receiver = extras.getParcelable(EXTRA_RESULT_RECEIVER);
 
@@ -91,11 +93,11 @@ public class RESTIntentService extends IntentService {
                 }
 
                 case POST: {
-                    request = buildPostHttpRequest(params);
+                    request = buildPostHttpRequest(params, files);
                     break;
                 }
                 case PUT: {
-                    request = buildPutHttpRequest(params);
+                    request = buildPutHttpRequest(params, files);
                     break;
                 }
             }
@@ -150,13 +152,15 @@ public class RESTIntentService extends IntentService {
         return new HttpDelete();
     }
 
-    private HttpRequestBase buildPostHttpRequest(Bundle params) throws UnsupportedEncodingException {
+    private HttpRequestBase buildPostHttpRequest(Bundle params, Bundle files) throws UnsupportedEncodingException {
         HttpRequestBase request = new HttpPost();
         HttpPost postRequest = (HttpPost) request;
         if (params != null) {
             String json = params.getString("json");
             if (json != null) {
-                StringEntity formEntity = new StringEntity(params.getString("json"));
+
+                json = populateFiles(json, files);
+                StringEntity formEntity = new StringEntity(json);
                 postRequest.setEntity(formEntity);
             } else {
                 Log.w(getClass().getName(), "Post request without body");
@@ -165,19 +169,30 @@ public class RESTIntentService extends IntentService {
         return request;
     }
 
-    private HttpRequestBase buildPutHttpRequest(Bundle params) throws UnsupportedEncodingException {
+    private HttpRequestBase buildPutHttpRequest(Bundle params, Bundle files) throws UnsupportedEncodingException {
         HttpRequestBase request = new HttpPut();
         HttpPut putRequest = (HttpPut) request;
         if (params != null) {
             String json = params.getString("json");
             if (json != null) {
-                StringEntity formEntity = new StringEntity(params.getString("json"));
+                json = populateFiles(json, files);
+                StringEntity formEntity = new StringEntity(json);
                 putRequest.setEntity(formEntity);
             } else {
                 Log.w(getClass().getName(), "Put request without body");
             }
         }
         return request;
+    }
+
+    private String populateFiles(String json, Bundle files) {
+        if (files != null) {
+            List<BasicNameValuePair> pairs = buildParamListFromBundle(files);
+            for (BasicNameValuePair pair : pairs) {
+                json = json.replaceAll(pair.getName(), RestUtils.readImageStringFromURI(getApplicationContext(), Uri.parse(pair.getValue())));
+            }
+        }
+        return json;
     }
 
     private HttpRequestBase attachUriWithQuery(HttpRequestBase request, Uri uri, int verb, Bundle params, Bundle defaultQueryParams) throws URISyntaxException {
@@ -205,6 +220,7 @@ public class RESTIntentService extends IntentService {
         return builder;
     }
 
+
     private List<BasicNameValuePair> buildParamListFromBundle(Bundle params) {
         ArrayList<BasicNameValuePair> formList = new ArrayList<BasicNameValuePair>(params.size());
 
@@ -217,6 +233,7 @@ public class RESTIntentService extends IntentService {
 
         return formList;
     }
+
 
     private HttpRequestBase setHeaders(HttpRequestBase request, Bundle headers) {
         request.setHeader("Content-Type", "application/json");

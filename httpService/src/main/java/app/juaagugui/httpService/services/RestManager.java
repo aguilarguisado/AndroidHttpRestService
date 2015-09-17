@@ -94,6 +94,7 @@ public abstract class RestManager implements IRestManager {
         intent.putExtra(RESTIntentService.EXTRA_HTTP_VERB, connection.getHttpVerb());
         intent.setData(Uri.parse(connection.getUrl()));
 
+        intent = setIntentBundle(intent, connection.getFiles(), RESTIntentService.FILES);
         intent = setIntentBundle(intent, connection.getHeaders(), RESTIntentService.HEADERS);
         intent = setIntentBundle(intent, connection.getDefaultUriQueryParams(), RESTIntentService.DEFAULT_QUERY_FILTERS);
 
@@ -101,6 +102,7 @@ public abstract class RestManager implements IRestManager {
         if (connection.getBodyData() != null) {
             params.putString("json", connection.getBodyData().toString());
         }
+
 
         intent.putExtra(RESTIntentService.EXTRA_PARAMS, params);
         intent.putExtra(RESTIntentService.EXTRA_RESULT_RECEIVER, getResultReceiver());
