@@ -1,134 +1,76 @@
 package app.juaagugui.httpService.model;
 
-import java.util.List;
-
-import app.juaagugui.httpService.listeners.OnRESTResultCallback;
+import android.util.Pair;
 
 import org.json.JSONObject;
 
-import android.util.Pair;
+import java.util.List;
 
-/**
- * 
- * @author Juan Aguilar Guisado
- * @since 1.0
- */
+import app.juaagugui.httpService.listeners.OnRESTResultCallback;
+import app.juaagugui.httpService.services.RESTIntentService.HTTP_VERB;
 
-public class HttpConnection implements IHttpConnection {
+public interface HttpConnection {
 
-	private String url;
-	private int httpVerb;
-	private JSONObject bodyData;
-	private Boolean loginRequired;
-	private List<Pair<String, String>> headers;
-	private List<Pair<String, String>> defaultUriQueryParams;
-	private List<Pair<String, String>> files;
+    String getUrl();
 
-	private OnRESTResultCallback callback;
+    void setUrl(String url);
 
-	public HttpConnection(String url, int httpVerb, JSONObject bodyData, OnRESTResultCallback callback) {
-		this(url, httpVerb, bodyData, false, null, null, callback);
-	}
+    HTTP_VERB getHttpVerb();
 
-	public HttpConnection(String url, int httpVerb, JSONObject bodyData, Boolean loginRequired, List<Pair<String, String>> headers, List<Pair<String, String>> defaultUriQueryParams,
-			OnRESTResultCallback callback) {
+    void setHttpVerb(HTTP_VERB httpVerb);
 
-		if (url == null || loginRequired == null) {
-			throw new IllegalArgumentException("Wrong parameters building a HttpConnection object: url and loginRequired should be != null");
-		}
+    JSONObject getBodyData();
 
-		this.url = url;
-		this.httpVerb = httpVerb;
-		this.bodyData = bodyData;
-		this.loginRequired = loginRequired;
-		this.headers = headers;
-		this.defaultUriQueryParams = defaultUriQueryParams;
-		this.callback = callback;
-	}
+    void setBodyData(JSONObject bodyData);
 
-	@Override
-	public String getUrl() {
-		return url;
-	}
+    Boolean getLoginRequired();
 
-	@Override
-	public void setUrl(String url) {
-		if (url == null) {
-			throw new IllegalArgumentException("URL cannot be null");
-		}
-		this.url = url;
-	}
+    void setLoginRequired(Boolean loginRequired);
 
-	@Override
-	public int getHttpVerb() {
-		return httpVerb;
-	}
+    List<Pair<String, String>> getHeaders();
 
-	@Override
-	public void setHttpVerb(int httpVerb) {
-		this.httpVerb = httpVerb;
-	}
+    void setHeaders(List<Pair<String, String>> headers);
 
-	@Override
-	public JSONObject getBodyData() {
-		return bodyData;
-	}
+    /**
+     * @since 2.1
+     * <p/>
+     * For sending images, you should to send (for each) a Pair<String, String> in order
+     * to avoid overflow problems while starting service.
+     */
 
-	@Override
-	public void setBodyData(JSONObject bodyData) {
-		this.bodyData = bodyData;
-	}
+    List<Pair<String, String>> getFiles();
 
-	@Override
-	public Boolean getLoginRequired() {
-		return loginRequired;
-	}
+    void setFiles(List<Pair<String, String>> headers);
 
-	@Override
-	public void setLoginRequired(Boolean loginRequired) {
-		if (loginRequired == null) {
-			throw new IllegalArgumentException("Login Required cannot be null");
-		}
-		this.loginRequired = loginRequired;
-	}
+    /**
+     * Some servers require several params attached to the URL, even if the verb
+     * of the httpRequest is not GET
+     *
+     * @return Default params to be attached to the URL following GET way
+     */
+    List<Pair<String, String>> getDefaultUriQueryParams();
 
-	@Override
-	public List<Pair<String, String>> getHeaders() {
-		return headers;
-	}
+    /**
+     * Some servers require several params attached to the URL, even if the verb
+     * of the httpRequest is not GET
+     *
+     * @param defaultUriQueryParams
+     */
+    void setDefaultUriQueryParams(List<Pair<String, String>> defaultUriQueryParams);
 
-	@Override
-	public void setHeaders(List<Pair<String, String>> headers) {
-		this.headers = headers;
-	}
+    /**
+     * Gets the listener which will process the result of the httpRequest
+     *
+     * @return callback
+     */
 
-	@Override
-	public List<Pair<String, String>> getDefaultUriQueryParams() {
-		return defaultUriQueryParams;
-	}
+    OnRESTResultCallback getCallback();
 
-	@Override
-	public void setDefaultUriQueryParams(List<Pair<String, String>> defaultUriQueryParams) {
-		this.defaultUriQueryParams = defaultUriQueryParams;
-	}
+    /**
+     * Sets the listener which will process the result of the httpRequest
+     *
+     * @param callback
+     */
+    void setCallback(OnRESTResultCallback callback);
 
-	@Override
-	public OnRESTResultCallback getCallback() {
-		return callback;
-	}
-
-	@Override
-	public void setCallback(OnRESTResultCallback callback) {
-		this.callback = callback;
-	}
-
-    @Override
-    public List<Pair<String, String>> getFiles() {
-        return files;
-    }
-
-    @Override
-    public void setFiles(List<Pair<String, String>> files) {
-        this.files = files;
-    }
 }

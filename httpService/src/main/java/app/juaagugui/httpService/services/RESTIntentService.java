@@ -38,10 +38,34 @@ public class RESTIntentService extends IntentService {
 
     private static final String TAG = RESTIntentService.class.getName();
 
-    public static final int GET = 0x1;
-    public static final int POST = 0x2;
-    public static final int PUT = 0x3;
-    public static final int DELETE = 0x4;
+
+    public enum HTTP_VERB {
+        GET("get"),
+        POST("post"),
+        PUT("put"),
+        DELETE("delete");
+
+        private String text;
+
+        HTTP_VERB(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return this.text;
+        }
+
+        public static HTTP_VERB fromString(String text) {
+            if (text != null) {
+                for (HTTP_VERB b : HTTP_VERB.values()) {
+                    if (text.equalsIgnoreCase(b.text)) {
+                        return b;
+                    }
+                }
+            }
+            return null;
+        }
+    }
 
     public static final String EXTRA_HTTP_VERB = "EXTRA_HTTP_VERB";
     public static final String EXTRA_PARAMS = "EXTRA_PARAMS";
@@ -69,7 +93,8 @@ public class RESTIntentService extends IntentService {
         }
 
         // We default to GET if no verb was specified.
-        int verb = extras.getInt(EXTRA_HTTP_VERB, GET);
+        String intentVerb = intent.getSerializableExtra(EXTRA_HTTP_VERB).toString();
+        HTTP_VERB verb = intentVerb == null ? HTTP_VERB.GET : HTTP_VERB.fromString(intentVerb);
         int returnCode = extras.getInt(RETURN_CODE);
         Bundle params = extras.getParcelable(EXTRA_PARAMS);
         Bundle defaultQueryFilters = extras.getParcelable(DEFAULT_QUERY_FILTERS);
@@ -195,12 +220,12 @@ public class RESTIntentService extends IntentService {
         return json;
     }
 
-    private HttpRequestBase attachUriWithQuery(HttpRequestBase request, Uri uri, int verb, Bundle params, Bundle defaultQueryParams) throws URISyntaxException {
+    private HttpRequestBase attachUriWithQuery(HttpRequestBase request, Uri uri, HTTP_VERB verb, Bundle params, Bundle defaultQueryParams) throws URISyntaxException {
         if (params != null && defaultQueryParams != null) {
             Uri.Builder uriBuilder = uri.buildUpon();
 
             uriBuilder = attachQueryParams(uriBuilder, defaultQueryParams);
-            if (verb == GET) {
+            if (verb == HTTP_VERB.GET) {
                 uriBuilder = attachQueryParams(uriBuilder, params);
             }
 

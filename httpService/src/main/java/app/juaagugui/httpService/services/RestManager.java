@@ -15,7 +15,7 @@ import java.util.List;
 import app.juaagugui.httpService.exceptions.NoInternetConnectionException;
 import app.juaagugui.httpService.listeners.OnHttpEventListener;
 import app.juaagugui.httpService.listeners.OnRESTResultCallback;
-import app.juaagugui.httpService.model.IHttpConnection;
+import app.juaagugui.httpService.model.HttpConnection;
 
 /**
  * @author Juan Aguilar Guisado
@@ -58,12 +58,13 @@ public abstract class RestManager implements IRestManager {
     }
 
     @Override
-    public void sendRequest(IHttpConnection connection) throws NoInternetConnectionException {
+    public void sendRequest(HttpConnection connection) throws NoInternetConnectionException {
         sendRequestWithReturn(-1, connection);
     }
 
     @Override
-    public void sendRequestWithReturn(int returnCode, IHttpConnection connection) throws NoInternetConnectionException {
+    public void sendRequestWithReturn(int returnCode, HttpConnection connection) throws NoInternetConnectionException {
+
         if (eventListener != null) {
             eventListener.onRequestInit();
         }
@@ -88,6 +89,8 @@ public abstract class RestManager implements IRestManager {
             }
             throw new NoInternetConnectionException();
         }
+
+        //Getting connection attributes
 
         Intent intent = new Intent(context, RESTIntentService.class);
         setCallback(connection.getCallback());
@@ -116,6 +119,7 @@ public abstract class RestManager implements IRestManager {
         }
         context.startService(intent);
     }
+
 
     @Override
     public ResultReceiver getResultReceiver() {
