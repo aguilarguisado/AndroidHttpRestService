@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
+import android.util.Pair;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -22,12 +23,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -85,9 +89,8 @@ public class RESTIntentService extends IntentService {
         // When an intent is received by this Service, this method is called on
         // a new thread.
 
-        Uri intentUriAction = intent.getData();
         Bundle extras = intent.getExtras();
-        if (extras == null || intentUriAction == null || !extras.containsKey(EXTRA_RESULT_RECEIVER)) {
+        if (extras == null || !extras.containsKey(EXTRA_RESULT_RECEIVER)) {
             Log.e(TAG, "You did not pass extras or data with the Intent.");
             return;
         }
@@ -129,7 +132,9 @@ public class RESTIntentService extends IntentService {
 
             request = setHeaders(request, headers);
 
-            if (params != null && defaultQueryFilters != null) {
+            // Compute URI
+            Uri intentUriAction = intent.getData();
+            if (params != null || defaultQueryFilters != null) {
                 request = attachUriWithQuery(request, intentUriAction, verb, params, defaultQueryFilters);
             } else {
                 request.setURI(new URI(intentUriAction.toString()));
@@ -177,6 +182,7 @@ public class RESTIntentService extends IntentService {
         return new HttpDelete();
     }
 
+
     private HttpRequestBase buildPostHttpRequest(Bundle params, Bundle files) throws UnsupportedEncodingException {
         HttpRequestBase request = new HttpPost();
         HttpPost postRequest = (HttpPost) request;
@@ -220,22 +226,53 @@ public class RESTIntentService extends IntentService {
         return json;
     }
 
-    private HttpRequestBase attachUriWithQuery(HttpRequestBase request, Uri uri, HTTP_VERB verb, Bundle params, Bundle defaultQueryParams) throws URISyntaxException {
-        if (params != null && defaultQueryParams != null) {
-            Uri.Builder uriBuilder = uri.buildUpon();
+    private List<Pair<String, String>> getParamsFromBundle(Bundle bundle) throws JSONException {
+        List<Pair<String, String>> res = new ArrayList<>();
 
-            uriBuilder = attachQueryParams(uriBuilder, defaultQueryParams);
-            if (verb == HTTP_VERB.GET) {
-                uriBuilder = attachQueryParams(uriBuilder, params);
-            }
+        String content = bundle.getString("json");
+        JSONObject jsonObject = new JSONObject(content);
+        Iterator<String> keys = jsonObject.keys();
 
-            uri = uriBuilder.build();
-            request.setURI(new URI(uri.toString()));
+        while (keys.hasNext()) {
+            String currentKey = keys.next();
+            res.add(new Pair<String, String>(currentKey, jsonObject.get(currentKey).toString()));
         }
+
+        return res;
+    }
+
+    private HttpRequestBase attachUriWithQuery(HttpRequestBase request, Uri uri, HTTP_VERB verb, Bundle params, Bundle defaultQueryParams) throws URISyntaxException {
+
+        Uri.Builder uriBuilder = uri.buildUpon();
+
+        if (defaultQueryParams != null) {
+            uriBuilder = attachQueryDefaultParams(uriBuilder, defaultQueryParams);
+        }
+
+        if (params != null && verb == HTTP_VERB.GET) {
+            try {
+                uriBuilder = attachQueryParams(uriBuilder, getParamsFromBundle(params));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        uri = uriBuilder.build();
+        request.setURI(new URI(uri.toString()));
+
         return request;
     }
 
-    private Uri.Builder attachQueryParams(Uri.Builder builder, Bundle params) {
+    private Uri.Builder attachQueryParams(Uri.Builder builder, List<Pair<String, String>> params) {
+        if (params != null) {
+            for (Pair<String, String> param : params) {
+                builder.appendQueryParameter(param.first, param.second);
+            }
+        }
+        return builder;
+    }
+
+    private Uri.Builder attachQueryDefaultParams(Uri.Builder builder, Bundle params) {
         if (params != null) {
             for (BasicNameValuePair param : buildParamListFromBundle(params)) {
                 builder.appendQueryParameter(param.getName(), param.getValue());
