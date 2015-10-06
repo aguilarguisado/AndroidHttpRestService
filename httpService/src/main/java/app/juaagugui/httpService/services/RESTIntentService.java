@@ -230,12 +230,14 @@ public class RESTIntentService extends IntentService {
         List<Pair<String, String>> res = new ArrayList<>();
 
         String content = bundle.getString("json");
-        JSONObject jsonObject = new JSONObject(content);
-        Iterator<String> keys = jsonObject.keys();
+        if (content != null) {
+            JSONObject jsonObject = new JSONObject(content);
+            Iterator<String> keys = jsonObject.keys();
 
-        while (keys.hasNext()) {
-            String currentKey = keys.next();
-            res.add(new Pair<String, String>(currentKey, jsonObject.get(currentKey).toString()));
+            while (keys.hasNext()) {
+                String currentKey = keys.next();
+                res.add(new Pair<>(currentKey, jsonObject.get(currentKey).toString()));
+            }
         }
 
         return res;
