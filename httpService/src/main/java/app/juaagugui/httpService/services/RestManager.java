@@ -111,12 +111,6 @@ public abstract class RestManager implements IRestManager {
         intent.putExtra(RESTIntentService.EXTRA_RESULT_RECEIVER, getResultReceiver());
         intent.putExtra(RESTIntentService.RETURN_CODE, returnCode);
 
-        if (connection.getLoginRequired()) {
-            if (!isLogged()) {
-                logout();
-                return;
-            }
-        }
         context.startService(intent);
     }
 
