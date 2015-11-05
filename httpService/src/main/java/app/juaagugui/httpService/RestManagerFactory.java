@@ -3,12 +3,12 @@ package app.juaagugui.httpService;
 import android.content.Context;
 
 import app.juaagugui.httpService.listeners.OnHttpEventListener;
-import app.juaagugui.httpService.services.RestManager;
+import app.juaagugui.httpService.services.RestManagerImpl;
 
 public class RestManagerFactory {
 
-    public static RestManager createDefaultRestManager(Context context) {
-        return new RestManager(context, new OnHttpEventListener() {
+    public static RestManagerImpl createDefaultRestManager(Context context) {
+        return new RestManagerImpl(context, new OnHttpEventListener() {
             @Override
             public void onRequestInit() {
                 //Nothing to do here
@@ -31,8 +31,8 @@ public class RestManagerFactory {
         };
     }
 
-    public static RestManager createRestManagerWithHttpEventListener(Context context, OnHttpEventListener httpEventListener) {
-        return new RestManager(context, httpEventListener) {
+    public static RestManagerImpl createRestManagerWithHttpEventListener(Context context, OnHttpEventListener httpEventListener) {
+        return new RestManagerImpl(context, httpEventListener) {
             @Override
             public boolean isLogged() {
                 return false;
