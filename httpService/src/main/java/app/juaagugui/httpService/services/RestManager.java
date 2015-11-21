@@ -12,12 +12,6 @@ import android.os.ResultReceiver;
  */
 public interface RestManager {
 
-	/**
-	 * 
-	 * @return Handler which will process the result and call the object waiting
-	 *         for it.
-	 */
-	public ResultReceiver getResultReceiver();
 
 	/**
 	 * Make an HttpRequest

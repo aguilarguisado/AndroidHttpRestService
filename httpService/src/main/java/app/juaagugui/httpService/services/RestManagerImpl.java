@@ -27,8 +27,6 @@ public abstract class RestManagerImpl implements RestManager {
 
     private Context context;
 
-    private ResultReceiver resultReceiver;
-
     private OnHttpEventListener eventListener;
 
     private boolean runUIThread;
@@ -41,40 +39,6 @@ public abstract class RestManagerImpl implements RestManager {
         this.context = context;
         this.eventListener = eventListener;
         this.runUIThread = runUIThread;
-    }
-
-    public void setCallback(final OnRESTResultCallback callback) {
-        if (callback != null) {
-            resultReceiver = new ResultReceiver(new Handler()) {
-                @Override
-                protected void onReceiveResult(final int resultCode, Bundle resultData) {
-                    if (eventListener != null) {
-                        eventListener.onRequestFinish();
-                    }
-                    int returnCode = -1;
-                    String restResultData = null;
-                    if (resultData != null) {
-                        returnCode = resultData.getInt(RESTIntentService.RETURN_CODE);
-                        if (resultData.containsKey(RESTIntentService.REST_RESULT)) {
-                            restResultData = resultData.getString(RESTIntentService.REST_RESULT);
-                        }
-                    }
-
-                    if (runUIThread) {
-                        final int finalReturnCode = returnCode;
-                        final String finalRestResultData = restResultData;
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                callback.onRESTResult(finalReturnCode, resultCode, finalRestResultData);
-                            }
-                        });
-                    } else {
-                        callback.onRESTResult(returnCode, resultCode, restResultData);
-                    }
-                }
-            };
-        }
     }
 
     @Override
@@ -113,7 +77,6 @@ public abstract class RestManagerImpl implements RestManager {
         //Getting connection attributes
 
         Intent intent = new Intent(context, RESTIntentService.class);
-        setCallback(connection.getCallback());
         intent.putExtra(RESTIntentService.EXTRA_HTTP_VERB, connection.getHttpVerb());
         intent.setData(Uri.parse(connection.getUrl()));
 
@@ -128,17 +91,50 @@ public abstract class RestManagerImpl implements RestManager {
 
 
         intent.putExtra(RESTIntentService.EXTRA_PARAMS, params);
-        intent.putExtra(RESTIntentService.EXTRA_RESULT_RECEIVER, getResultReceiver());
+        intent.putExtra(RESTIntentService.EXTRA_RESULT_RECEIVER, createResultReceiver(connection.getCallback()));
         intent.putExtra(RESTIntentService.RETURN_CODE, returnCode);
 
         context.startService(intent);
     }
 
 
-    @Override
-    public ResultReceiver getResultReceiver() {
-        return resultReceiver;
+    private ResultReceiver createResultReceiver(final OnRESTResultCallback callback) {
+
+        if (callback == null) {
+            throw new IllegalArgumentException("Callback must not be null while building a RestManager request");
+        }
+
+        return new ResultReceiver(new Handler()) {
+            @Override
+            protected void onReceiveResult(final int resultCode, Bundle resultData) {
+                if (eventListener != null) {
+                    eventListener.onRequestFinish();
+                }
+                int returnCode = -1;
+                String restResultData = null;
+                if (resultData != null) {
+                    returnCode = resultData.getInt(RESTIntentService.RETURN_CODE);
+                    if (resultData.containsKey(RESTIntentService.REST_RESULT)) {
+                        restResultData = resultData.getString(RESTIntentService.REST_RESULT);
+                    }
+                }
+
+                if (runUIThread) {
+                    final int finalReturnCode = returnCode;
+                    final String finalRestResultData = restResultData;
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onRESTResult(finalReturnCode, resultCode, finalRestResultData);
+                        }
+                    });
+                } else {
+                    callback.onRESTResult(returnCode, resultCode, restResultData);
+                }
+            }
+        };
     }
+
 
     @Override
     public Boolean hasDeviceConnectionToInternet(Context context) {
